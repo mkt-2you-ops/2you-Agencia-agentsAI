@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<title>Pilot Ops V2</title>
+<style>
+body{font-family:Arial;background:#07111f;color:#e5eefc;padding:20px}
+button{padding:10px;margin:5px;border-radius:8px;border:none;cursor:pointer}
+.approve{background:#22c55e}
+.execute{background:#3b82f6}
+</style>
+</head>
+<body>
+<h1>Pilot Ops V2 - Execução Real</h1>
+
+<button class="approve" onclick="approve()">Aprovar</button>
+<button class="execute" onclick="executeJob()">Executar</button>
+
+<pre id="output"></pre>
+
+<script>
+async function approve(){
+  const res = await fetch('/api/pilot/approve',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({job_id:'job_campaign_ops_001'})
+  });
+  const json = await res.json();
+  document.getElementById('output').innerText = JSON.stringify(json,null,2);
+}
+
+async function executeJob(){
+  const res = await fetch('/api/pilot/execute',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({job_id:'job_campaign_ops_001',executor_id:'executor_github_preview'})
+  });
+  const json = await res.json();
+  document.getElementById('output').innerText = JSON.stringify(json,null,2);
+}
+</script>
+</body>
+</html>
