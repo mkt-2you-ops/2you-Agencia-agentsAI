@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>2YOU Agency AI Control Tower</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <header class="hero card">
+        <div>
+          <div class="eyebrow">2YOU Agency AI</div>
+          <h1>Control Tower</h1>
+          <p class="hero-copy">
+            Uma interface visual para observar agentes, fila operacional, handoffs,
+            qualidade e autonomia. Milagre humano transformado em painel, enfim.
+          </p>
+        </div>
+        <div class="hero-actions">
+          <button id="autopilotButton" class="primary">Pausar autopilot</button>
+          <button id="resetButton" class="secondary">Resetar simulação</button>
+        </div>
+      </header>
+
+      <section id="kpis" class="kpi-grid"></section>
+
+      <section class="layout-grid">
+        <article class="card span-8">
+          <div class="section-head">
+            <div>
+              <h2>Agentes em operação</h2>
+              <p>Estado atual, confiança, retries e próxima ação.</p>
+            </div>
+            <span id="modeBadge" class="pill pill-running">Autonomous</span>
+          </div>
+          <div id="agentsGrid" class="agents-grid"></div>
+        </article>
+
+        <aside class="card span-4">
+          <div class="section-head">
+            <div>
+              <h2>Configuração do runtime</h2>
+              <p>Parâmetros que realmente mudam o comportamento.</p>
+            </div>
+          </div>
+          <div id="controlPanel" class="control-list"></div>
+        </aside>
+      </section>
+
+      <section class="layout-grid">
+        <article class="card span-8">
+          <div class="section-head">
+            <div>
+              <h2>Fila operacional</h2>
+              <p>Do backlog até validação e entrega.</p>
+            </div>
+          </div>
+          <div id="queueBoard" class="queue-board"></div>
+        </article>
+
+        <aside class="card span-4">
+          <div class="section-head">
+            <div>
+              <h2>Feed de eventos</h2>
+              <p>O que acabou de acontecer no sistema.</p>
+            </div>
+          </div>
+          <div id="eventFeed" class="event-feed"></div>
+        </aside>
+      </section>
+
+      <section class="layout-grid">
+        <article class="card span-12">
+          <div class="section-head">
+            <div>
+              <h2>O que falta para virar autonomia real</h2>
+              <p>
+                Esta interface já mostra o modelo operacional. O runtime de verdade
+                precisa falar com fila, memória, ferramentas, avaliações e regras.
+              </p>
+            </div>
+          </div>
+          <div class="notes-grid">
+            <div class="note">
+              <h3>1. Scheduler</h3>
+              <p>Dispara rotinas, monitora sinais e cria tarefas sem depender de comando manual.</p>
+            </div>
+            <div class="note">
+              <h3>2. Memory + Context</h3>
+              <p>Memória operacional, histórico de decisões, briefs e critérios por cliente.</p>
+            </div>
+            <div class="note">
+              <h3>3. Evaluator</h3>
+              <p>Valida saída, pede retry, faz QA e bloqueia avanço quando a qualidade cai.</p>
+            </div>
+            <div class="note">
+              <h3>4. Observability</h3>
+              <p>Logs, custos, throughput, latência, falhas e rastreabilidade por agente e tarefa.</p>
+            </div>
+          </div>
+        </article>
+      </section>
+    </div>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
