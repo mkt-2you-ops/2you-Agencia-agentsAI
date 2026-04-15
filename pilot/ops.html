@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>2YOU Agency AI Pilot Ops</title>
+    <style>
+      :root {
+        --bg: #07111f;
+        --panel: rgba(12,24,42,.92);
+        --panel-2: rgba(18,31,54,.92);
+        --text: #e5eefc;
+        --muted: #97a6bf;
+        --line: rgba(148,163,184,.16);
+        --accent: #6ee7ff;
+        --accent-2: #8b5cf6;
+        --radius: 20px;
+      }
+      * { box-sizing: border-box; }
+      body { margin:0; font-family:Inter,system-ui,sans-serif; color:var(--text); background:radial-gradient(circle at top left, rgba(110,231,255,.12), transparent 30%),radial-gradient(circle at top right, rgba(139,92,246,.16), transparent 25%),linear-gradient(180deg, #020817 0%, #07111f 100%); }
+      .shell { max-width: 1440px; margin: 0 auto; padding: 24px; }
+      .card { background: linear-gradient(180deg, rgba(17,28,47,.96), rgba(9,17,30,.96)); border:1px solid var(--line); border-radius:var(--radius); padding:22px; box-shadow:0 18px 70px rgba(0,0,0,.35); }
+      .hero { display:flex; justify-content:space-between; gap:16px; align-items:end; margin-bottom:20px; }
+      .eyebrow { color:var(--accent); text-transform:uppercase; letter-spacing:.16em; font-size:.78rem; margin-bottom:10px; }
+      h1 { margin:0; font-size:clamp(2rem,5vw,3.8rem); line-height:1; }
+      .hero p,.meta,.item p,.status-line,.sub { color:var(--muted); line-height:1.6; }
+      .actions { display:flex; gap:10px; flex-wrap:wrap; }
+      a.button { text-decoration:none; border-radius:999px; padding:12px 16px; font-weight:700; display:inline-flex; }
+      .primary { background: linear-gradient(135deg, var(--accent), #3b82f6); color:#03111d; }
+      .secondary { border:1px solid var(--line); color:var(--text); }
+      .grid { display:grid; gap:16px; }
+      .kpis { grid-template-columns: repeat(5, minmax(0,1fr)); margin-bottom:20px; }
+      .layout { grid-template-columns: 1.15fr 1fr; }
+      .stack { display:grid; gap:16px; }
+      .kpi .label { color:var(--muted); font-size:.82rem; margin-bottom:8px; }
+      .kpi .value { font-size:1.9rem; font-weight:800; }
+      .kpi .foot { color:var(--muted); font-size:.82rem; margin-top:10px; }
+      .section-head { display:flex; justify-content:space-between; gap:12px; align-items:start; margin-bottom:16px; }
+      .section-head h2 { margin:0 0 6px; font-size:1.1rem; }
+      .section-head p { margin:0; color:var(--muted); font-size:.92rem; }
+      .list { display:grid; gap:12px; }
+      .item { background:var(--panel-2); border:1px solid var(--line); border-radius:16px; padding:14px; }
+      .head,.meta { display:flex; justify-content:space-between; gap:10px; }
+      .title { font-weight:800; }
+      .progress { margin-top:10px; width:100%; height:10px; border-radius:999px; background:rgba(148,163,184,.15); overflow:hidden; }
+      .progress > span { display:block; height:100%; background:linear-gradient(90deg, var(--accent), var(--accent-2)); }
+      .pill { display:inline-flex; align-items:center; border-radius:999px; padding:.34rem .72rem; font-size:.78rem; font-weight:700; }
+      .running { background:rgba(34,197,94,.14); color:#86efac; }
+      .review { background:rgba(245,158,11,.14); color:#fcd34d; }
+      .queued { background:rgba(59,130,246,.14); color:#93c5fd; }
+      .blocked,.pending { background:rgba(239,68,68,.16); color:#fda4af; }
+      .done,.approved { background:rgba(139,92,246,.16); color:#c4b5fd; }
+      .idle,.backlog { background:rgba(148,163,184,.16); color:#cbd5e1; }
+      .warning { background:rgba(245,158,11,.14); color:#fcd34d; }
+      @media (max-width:1100px) { .kpis,.layout { grid-template-columns:1fr; } .hero { flex-direction:column; align-items:flex-start; } }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <section class="card hero">
+        <div>
+          <div class="eyebrow">2YOU Agency AI</div>
+          <h1>Pilot Ops Dashboard</h1>
+          <p>Mono-workspace para validar o loop real: job, tasks, approval, executor e activity log. Um piloto controlado. Pela primeira vez, uma decisão sensata.</p>
+        </div>
+        <div class="actions">
+          <a class="button primary" href="/api/pilot/jobs">Jobs</a>
+          <a class="button secondary" href="/api/pilot/approvals">Approvals</a>
+          <a class="button secondary" href="/api/pilot/activity-log">Activity log</a>
+          <a class="button secondary" href="/api/pilot/executors">Executors</a>
+        </div>
+      </section>
+      <section id="kpis" class="grid kpis"></section>
+      <section class="grid layout">
+        <article class="card stack">
+          <section>
+            <div class="section-head"><div><h2>Workspace</h2><p>Escopo único do piloto.</p></div></div>
+            <div id="workspaceCard"></div>
+          </section>
+          <section>
+            <div class="section-head"><div><h2>Jobs</h2><p>Porta principal de demanda.</p></div></div>
+            <div id="jobs" class="list"></div>
+          </section>
+          <section>
+            <div class="section-head"><div><h2>Tasks</h2><p>Execução derivada do job principal.</p></div></div>
+            <div id="tasks" class="list"></div>
+          </section>
+        </article>
+        <article class="card stack">
+          <section>
+            <div class="section-head"><div><h2>Approvals</h2><p>Gate humano antes da execução real.</p></div></div>
+            <div id="approvals" class="list"></div>
+          </section>
+          <section>
+            <div class="section-head"><div><h2>Executors</h2><p>Conectores candidatos para ação real.</p></div></div>
+            <div id="executors" class="list"></div>
+          </section>
+          <section>
+            <div class="section-head"><div><h2>Activity Log</h2><p>Rastreabilidade mínima do piloto.</p></div></div>
+            <div id="activityLog" class="list"></div>
+          </section>
+        </article>
+      </section>
+      <section class="card" style="margin-top:20px;"><div id="status" class="status-line">Carregando piloto...</div></section>
+    </div>
+    <script>
+      const cls = { running:'running', review:'review', queued:'queued', blocked:'blocked', done:'done', idle:'idle', backlog:'backlog', pending:'pending', approved:'approved' };
+      const metricCard = (label, value, foot) => `<div class="card kpi"><div class="label">${label}</div><div class="value">${value}</div><div class="foot">${foot}</div></div>`;
+      async function getJson(url) { const res = await fetch(url, { cache: 'no-store' }); if (!res.ok) throw new Error(`${url} -> HTTP ${res.status}`); return res.json(); }
+      function render(workspaceData, jobsData, tasksData, approvalsData, executorsData, logData) {
+        const workspace = workspaceData.workspace;
+        const jobs = jobsData.jobs || [];
+        const tasks = tasksData.tasks || [];
+        const approvals = approvalsData.approvals || [];
+        const executors = executorsData.executors || [];
+        const logs = logData.activity_log || [];
+        const pendingApprovals = approvals.filter(a => a.state === 'pending').length;
+        const runningTasks = tasks.filter(t => t.status === 'running').length;
+        const doneTasks = tasks.filter(t => t.status === 'done').length;
+        const readyExecutors = executors.filter(e => e.status === 'available').length;
+        document.getElementById('kpis').innerHTML = [
+          metricCard('Workspace', workspace?.name || '-', 'Escopo do piloto'),
+          metricCard('Jobs', `${jobs.length}`, 'Demanda estruturada'),
+          metricCard('Tasks ativas', `${runningTasks}/${tasks.length}`, 'Execução atual'),
+          metricCard('Approvals pendentes', `${pendingApprovals}`, 'Gate humano'),
+          metricCard('Executors disponíveis', `${readyExecutors}`, 'Candidatos de execução')
+        ].join('');
+        document.getElementById('workspaceCard').innerHTML = `<article class="item"><div class="head"><div><div class="title">${workspace.name}</div><div class="sub">${workspace.company}</div></div><span class="pill ${workspace.active ? 'running' : 'idle'}">${workspace.mode}</span></div><p>${workspace.objective}</p><div class="meta">Fluxo principal: ${workspace.primary_flow}</div></article>`;
+        document.getElementById('jobs').innerHTML = jobs.map(job => `<article class="item"><div class="head"><div class="title">${job.title}</div><span class="pill ${cls[job.status] || 'idle'}">${job.status}</span></div><p>${job.objective}</p><div class="meta">Owner: ${job.owner} · Prioridade: ${job.priority}</div><div class="meta">Approval: ${job.approval_state} · Execução: ${job.execution_state}</div></article>`).join('');
+        document.getElementById('tasks').innerHTML = tasks.map(task => `<article class="item"><div class="head"><div class="title">${task.title}</div><span class="pill ${cls[task.status] || 'idle'}">${task.status}</span></div><div class="meta">Owner: ${task.owner}</div><div class="progress"><span style="width:${task.progress || 0}%"></span></div></article>`).join('');
+        document.getElementById('approvals').innerHTML = approvals.map(item => `<article class="item"><div class="head"><div class="title">${item.item_label}</div><span class="pill ${cls[item.state] || 'warning'}">${item.state}</span></div><div class="meta">Approver: ${item.approver} · Risco: ${item.risk_level}</div><p>Execução bloqueada até aprovação: ${item.execution_blocked_until_approval ? 'sim' : 'não'}</p></article>`).join('');
+        document.getElementById('executors').innerHTML = executors.map(executor => `<article class="item"><div class="head"><div class="title">${executor.name}</div><span class="pill ${executor.status === 'available' ? 'running' : 'idle'}">${executor.status}</span></div><div class="meta">Tipo: ${executor.type}</div><p>${executor.scope.join(' · ')}</p></article>`).join('');
+        document.getElementById('activityLog').innerHTML = logs.map(log => `<article class="item"><div class="head"><div class="title">${log.type}</div><span class="pill idle">${log.actor}</span></div><p>${log.message}</p><div class="meta">${log.timestamp} · target: ${log.target}</div></article>`).join('');
+        document.getElementById('status').textContent = 'Pilot Ops Dashboard carregado. Atualização automática a cada 20s.';
+      }
+      async function load() {
+        const status = document.getElementById('status');
+        try {
+          status.textContent = 'Buscando endpoints do piloto...';
+          const [workspaceData, jobsData, tasksData, approvalsData, executorsData, logData] = await Promise.all([
+            getJson('/api/pilot/workspace'),
+            getJson('/api/pilot/jobs'),
+            getJson('/api/pilot/tasks'),
+            getJson('/api/pilot/approvals'),
+            getJson('/api/pilot/executors'),
+            getJson('/api/pilot/activity-log')
+          ]);
+          render(workspaceData, jobsData, tasksData, approvalsData, executorsData, logData);
+        } catch (error) {
+          status.textContent = `Falha ao carregar piloto: ${error.message}`;
+        }
+      }
+      load();
+      setInterval(load, 20000);
+    </script>
+  </body>
+</html>
