@@ -1,0 +1,25 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "redirects": [
+    {
+      "source": "/control-tower",
+      "destination": "/control-tower/live.html",
+      "permanent": false
+    },
+    {
+      "source": "/control-tower/",
+      "destination": "/control-tower/live.html",
+      "permanent": false
+    },
+    {
+      "source": "/control-tower/index.html",
+      "destination": "/control-tower/live.html",
+      "permanent": false
+    },
+    {
+      "source": "/api/agents",
+      "destination": "/api/agents.json",
+      "permanent": false
+    }
+  ]
+}
