@@ -1,0 +1,46 @@
+export const runtimeSnapshot = {
+  meta: {
+    agency: "2YOU Agency AI",
+    mode: "Autonomous",
+    autopilot: true,
+    qaStrictness: "Alta",
+    maxConcurrent: 6,
+    retryLimit: 3,
+    memoryMode: "Hybrid memory",
+    approvalPolicy: "Human only for critical",
+    version: "phase-3-single-source"
+  },
+  agents: [
+    { id: "orch-01", name: "Agents Orchestrator", division: "Specialized", role: "Despacho, priorização e handoff", status: "running", confidence: 96, retries: 0, currentTask: "Distribuir backlog entre mídia, conteúdo e produto", nextAction: "Aguardar feedback do evaluator e redispatch" },
+    { id: "pm-01", name: "Project Shepherd", division: "Project Management", role: "Quebra de escopo e cadência", status: "running", confidence: 92, retries: 0, currentTask: "Transformar objetivo comercial em task graph", nextAction: "Atualizar dependências e ETA por lote" },
+    { id: "mkt-01", name: "Content Creator", division: "Marketing", role: "Conteúdo e ativo criativo", status: "review", confidence: 84, retries: 1, currentTask: "Gerar 3 criativos para campanha de aquisição", nextAction: "Ajustar hook do criativo com base no evaluator" },
+    { id: "paid-01", name: "Paid Social Strategist", division: "Paid Media", role: "Lances, segmentação e testes", status: "queued", confidence: 88, retries: 0, currentTask: "Planejar estrutura de testes Meta Ads", nextAction: "Entrar assim que o brief criativo for aprovado" },
+    { id: "prod-01", name: "Product Manager", division: "Product", role: "Descoberta e requisito funcional", status: "running", confidence: 91, retries: 0, currentTask: "Definir evento, trigger e regra de autonomia", nextAction: "Publicar contrato do runtime para frontend" },
+    { id: "qa-01", name: "Reality Checker", division: "Testing", role: "QA, gate e risco operacional", status: "running", confidence: 95, retries: 0, currentTask: "Validar saída antes de avançar para mídia paga", nextAction: "Aprovar ou devolver com evidência" }
+  ],
+  tasks: [
+    { id: "T-201", title: "Mapear sinais que criam tarefas sem input humano", description: "Lead novo, e-mail inbound, baixa performance, deadline estourado, mudança de briefing.", owner: "Product Manager", priority: "Alta", status: "backlog", progress: 12 },
+    { id: "T-202", title: "Quebrar campanha em task graph com dependências", description: "Estratégia, criativo, tracking, mídia, QA e reporting com ordem explícita.", owner: "Project Shepherd", priority: "Alta", status: "running", progress: 58 },
+    { id: "T-203", title: "Gerar 3 hooks de criativo com hipótese por ICP", description: "Cada peça precisa ter hipótese, risco e critério de aprovação.", owner: "Content Creator", priority: "Alta", status: "review", progress: 86 },
+    { id: "T-204", title: "Planejar estrutura de campanha com budget guardrails", description: "Definir teste, alocação inicial e limites automáticos de corte.", owner: "Paid Social Strategist", priority: "Média", status: "backlog", progress: 4 },
+    { id: "T-205", title: "Registrar memória operacional da conta", description: "Salvar preferências, veto de linguagem, histórico e aprendizados úteis.", owner: "Agents Orchestrator", priority: "Média", status: "done", progress: 100 },
+    { id: "T-206", title: "Validar QA gate para publicação automática", description: "Sem nota mínima, nada sobe. Civilização básica, incrivelmente rara.", owner: "Reality Checker", priority: "Alta", status: "running", progress: 67 }
+  ],
+  events: [
+    { id: 1, time: "agora", level: "running", title: "Orchestrator redistribuiu prioridade", description: "Campanha entrou em modo acquisition-first após detectar gargalo entre criativo e mídia." },
+    { id: 2, time: "há 1 min", level: "review", title: "Evaluator devolveu criativo 02", description: "Hook forte, mas promessa ampla demais para aprovação automática. Retry aberto." },
+    { id: 3, time: "há 3 min", level: "queued", title: "Fila recebeu nova rotina", description: "Evento inbound disparou análise de ICP e proposta de sequência de follow-up." },
+    { id: 4, time: "há 6 min", level: "done", title: "Memória operacional persistida", description: "Padrões de objeção, tom de voz e restrições do cliente adicionados ao contexto compartilhado." }
+  ]
+};
+
+export function payload(entity, data) {
+  return {
+    meta: {
+      source: runtimeSnapshot.meta.version,
+      entity,
+      total: Array.isArray(data) ? data.length : undefined
+    },
+    [entity]: data
+  };
+}
