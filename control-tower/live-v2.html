@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>2YOU Agency AI Control Tower Live V2</title>
+    <style>
+      :root {
+        --bg: #07111f;
+        --panel: rgba(12,24,42,.92);
+        --panel-2: rgba(18,31,54,.92);
+        --text: #e5eefc;
+        --muted: #97a6bf;
+        --line: rgba(148,163,184,.16);
+        --accent: #6ee7ff;
+        --accent-2: #8b5cf6;
+        --radius: 20px;
+      }
+      * { box-sizing: border-box; }
+      body { margin:0; font-family:Inter,system-ui,sans-serif; color:var(--text); background:radial-gradient(circle at top left, rgba(110,231,255,.12), transparent 30%),radial-gradient(circle at top right, rgba(139,92,246,.16), transparent 25%),linear-gradient(180deg, #020817 0%, #07111f 100%); }
+      .shell { max-width: 1440px; margin: 0 auto; padding: 24px; }
+      .card { background: linear-gradient(180deg, rgba(17,28,47,.96), rgba(9,17,30,.96)); border:1px solid var(--line); border-radius:var(--radius); padding:22px; box-shadow:0 18px 70px rgba(0,0,0,.35); }
+      .hero { display:flex; justify-content:space-between; gap:16px; align-items:end; margin-bottom:20px; }
+      .eyebrow { color:var(--accent); text-transform:uppercase; letter-spacing:.16em; font-size:.78rem; margin-bottom:10px; }
+      h1 { margin:0; font-size:clamp(2rem,5vw,3.8rem); line-height:1; }
+      .hero p,.meta,.sub,.item p,.status-line { color:var(--muted); line-height:1.6; }
+      .actions { display:flex; gap:10px; flex-wrap:wrap; }
+      a.button { text-decoration:none; border-radius:999px; padding:12px 16px; font-weight:700; display:inline-flex; }
+      .primary { background: linear-gradient(135deg, var(--accent), #3b82f6); color:#03111d; }
+      .secondary { border:1px solid var(--line); color:var(--text); }
+      .grid { display:grid; gap:16px; }
+      .kpis { grid-template-columns: repeat(5, minmax(0,1fr)); margin-bottom:20px; }
+      .layout { grid-template-columns: 1.1fr 1fr 1fr; }
+      .kpi .label { color:var(--muted); font-size:.82rem; margin-bottom:8px; }
+      .kpi .value { font-size:1.9rem; font-weight:800; }
+      .kpi .foot { color:var(--muted); font-size:.82rem; margin-top:10px; }
+      .section-head { display:flex; justify-content:space-between; gap:12px; align-items:start; margin-bottom:16px; }
+      .section-head h2 { margin:0 0 6px; font-size:1.1rem; }
+      .section-head p { margin:0; color:var(--muted); font-size:.92rem; }
+      .list { display:grid; gap:12px; }
+      .item { background:var(--panel-2); border:1px solid var(--line); border-radius:16px; padding:14px; }
+      .head,.meta { display:flex; justify-content:space-between; gap:10px; }
+      .title { font-weight:800; }
+      .progress { margin-top:10px; width:100%; height:10px; border-radius:999px; background:rgba(148,163,184,.15); overflow:hidden; }
+      .progress > span { display:block; height:100%; background:linear-gradient(90deg, var(--accent), var(--accent-2)); }
+      .pill { display:inline-flex; align-items:center; border-radius:999px; padding:.34rem .72rem; font-size:.78rem; font-weight:700; }
+      .running { background:rgba(34,197,94,.14); color:#86efac; }
+      .review { background:rgba(245,158,11,.14); color:#fcd34d; }
+      .queued { background:rgba(59,130,246,.14); color:#93c5fd; }
+      .blocked { background:rgba(239,68,68,.16); color:#fda4af; }
+      .done { background:rgba(139,92,246,.16); color:#c4b5fd; }
+      .idle,.backlog { background:rgba(148,163,184,.16); color:#cbd5e1; }
+      @media (max-width:1100px) { .kpis,.layout { grid-template-columns:1fr; } .hero { flex-direction:column; align-items:flex-start; } }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <section class="card hero">
+        <div>
+          <div class="eyebrow">2YOU Agency AI</div>
+          <h1>Control Tower Live V2</h1>
+          <p>Versão com endpoints v2 alimentados por uma fonte única de estado. Menos duplicação, menos chance de painel mentir com convicção.</p>
+        </div>
+        <div class="actions">
+          <a class="button primary" href="/api/v2/runtime">Runtime v2</a>
+          <a class="button secondary" href="/api/v2/tasks">Tasks v2</a>
+          <a class="button secondary" href="/api/v2/agents">Agents v2</a>
+          <a class="button secondary" href="/api/v2/event-feed">Event feed v2</a>
+        </div>
+      </section>
+      <section id="kpis" class="grid kpis"></section>
+      <section class="grid layout">
+        <article class="card"><div class="section-head"><div><h2>Agentes</h2><p>Fonte única de estado.</p></div><span id="modePill" class="pill idle">loading</span></div><div id="agents" class="list"></div></article>
+        <article class="card"><div class="section-head"><div><h2>Tarefas</h2><p>Fila derivada do mesmo snapshot.</p></div></div><div id="tasks" class="list"></div></article>
+        <article class="card"><div class="section-head"><div><h2>Eventos</h2><p>Feed separado, mesma origem.</p></div></div><div id="events" class="list"></div></article>
+      </section>
+      <section class="card" style="margin-top:20px;"><div id="status" class="status-line">Carregando dados...</div></section>
+    </div>
+    <script>
+      const cls = { running:'running', review:'review', queued:'queued', blocked:'blocked', done:'done', idle:'idle', backlog:'backlog' };
+      const metricCard = (label, value, foot) => `<div class="card kpi"><div class="label">${label}</div><div class="value">${value}</div><div class="foot">${foot}</div></div>`;
+      async function getJson(url) { const res = await fetch(url, { cache: 'no-store' }); if (!res.ok) throw new Error(`${url} -> HTTP ${res.status}`); return res.json(); }
+      function render(runtime, tasksData, agentsData, eventsData) {
+        const agents = agentsData.agents || runtime.agents || [];
+        const tasks = tasksData.tasks || runtime.tasks || [];
+        const events = eventsData.events || runtime.events || [];
+        const runningAgents = agents.filter(a => a.status === 'running').length;
+        const reviewTasks = tasks.filter(t => t.status === 'review').length;
+        const doneTasks = tasks.filter(t => t.status === 'done').length;
+        const avgConfidence = agents.length ? Math.round(agents.reduce((s,a) => s + (a.confidence || 0), 0) / agents.length) : 0;
+        document.getElementById('kpis').innerHTML = [
+          metricCard('Agentes ativos', `${runningAgents}/${agents.length || 0}`, 'Em execução'),
+          metricCard('Tarefas totais', `${tasks.length}`, 'Fila atual'),
+          metricCard('QA pendente', `${reviewTasks}`, 'Aguardando decisão'),
+          metricCard('Concluídas', `${doneTasks}`, 'Saídas aprovadas'),
+          metricCard('Confiança média', `${avgConfidence}%`, 'Sinal do runtime')
+        ].join('');
+        const modePill = document.getElementById('modePill');
+        modePill.className = `pill ${runtime.meta?.autopilot ? 'running' : 'idle'}`;
+        modePill.textContent = runtime.meta?.mode || 'unknown';
+        document.getElementById('agents').innerHTML = agents.map(agent => `<article class="item"><div class="head"><div><div class="title">${agent.name}</div><div class="sub">${agent.division} · ${agent.role}</div></div><span class="pill ${cls[agent.status] || 'idle'}">${agent.status}</span></div><div class="status-line">Confiança: ${agent.confidence ?? '-'}% · Retries: ${agent.retries ?? 0}</div><div class="status-line">Atual: ${agent.currentTask || '-'}</div><div class="status-line">Next: ${agent.nextAction || '-'}</div></article>`).join('');
+        document.getElementById('tasks').innerHTML = tasks.map(task => `<article class="item"><div class="head"><div class="title">${task.title}</div><span class="pill ${cls[task.status] || 'idle'}">${task.status}</span></div><p>${task.description || ''}</p><div class="meta">Owner: ${task.owner || '-'} · Prioridade: ${task.priority || '-'}</div><div class="progress"><span style="width:${task.progress || 0}%"></span></div></article>`).join('');
+        document.getElementById('events').innerHTML = events.map(event => `<article class="item"><div class="head"><div class="title">${event.title}</div><span class="pill ${cls[event.level] || 'idle'}">${event.level || 'info'}</span></div><p>${event.description || ''}</p><div class="meta">${event.time || ''}</div></article>`).join('');
+        document.getElementById('status').textContent = 'Control Tower Live V2 carregada. Polling a cada 15s.';
+      }
+      async function load() {
+        const status = document.getElementById('status');
+        try {
+          status.textContent = 'Buscando endpoints v2...';
+          const [runtime, tasksData, agentsData, eventsData] = await Promise.all([
+            getJson('/api/v2/runtime'),
+            getJson('/api/v2/tasks'),
+            getJson('/api/v2/agents'),
+            getJson('/api/v2/event-feed')
+          ]);
+          render(runtime, tasksData, agentsData, eventsData);
+        } catch (error) {
+          status.textContent = `Falha ao carregar dados: ${error.message}`;
+        }
+      }
+      load();
+      setInterval(load, 15000);
+    </script>
+  </body>
+</html>
